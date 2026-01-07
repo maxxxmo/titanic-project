@@ -12,3 +12,12 @@ We avoid inheritance for models and metrics. Since we rely on scikit-learn compo
 
 
 # Phase 2 - Add mlflow
+
+- Titanic ML pipeline tracked with MLflow: parameters, metrics, and model.
+
+- Uses a metrics registry to centralize metrics (accuracy, precision, recall, f1, roc_auc).
+
+- Each training run is logged in an MLflow Experiment, no Model Registry used.
+
+- Pipeline can be run with python src/run_pipeline.py, fully reproducible.
+
