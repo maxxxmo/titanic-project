@@ -1,0 +1,17 @@
+# Environnements Python
+.venv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# OS / IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Airflow / MLflow (plus tard)
+logs/
+mlruns/
