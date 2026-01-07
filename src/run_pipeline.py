@@ -1,9 +1,12 @@
 from src.evaluation.evaluate import evaluate_model
-from src.evaluation.metrics_registry import METRICS_REGISTRY
 from src.ingestion.load_data import load_data
 from src.preprocessing.preprocess import preprocess_data
 from src.training.training import train_model
-from src.training.model_registry import MODEL_REGISTRY
+from src.utils.mlflow_utils import start_mlflow_experiment, log_model_run
+from sklearn.linear_model import LogisticRegression  # modèle spécifique
+# Before the add of mlflow to test pipeline core
+from src.evaluation.metrics_registry import METRICS_REGISTRY
+# from src.training.model_registry import MODEL_REGISTRY
 
 def main():
     # data ingestion
@@ -15,34 +18,29 @@ def main():
     X_train, X_test, y_train, y_test = preprocess_data(df)
 
     # for training model
+    model_cls = LogisticRegression
+    params = {"max_iter": 200}
+    
+    
+    print("Starting MLflow experiment...")
+    start_mlflow_experiment()
 
+    print("Training model...")
+    model = train_model(model_cls, params, X_train, y_train)
 
-    results = []
+    print("Evaluating model...")
+    accuracy = evaluate_model(model, X_test, y_test, metrics_registry=METRICS_REGISTRY)
+    # metrics = {"accuracy": accuracy}
+    
+    
+    print(f"Model accuracy: {accuracy}")
 
-    for model_name, config in MODEL_REGISTRY.items():
-        print(f"Training {model_name}...")
-
-        model = train_model(
-            model_cls=config["class"],
-            params=config["params"],
-            X_train=X_train,
-            y_train=y_train
-        )
-        
-        
-    # evaluating model
-
-    metrics = evaluate_model(
-        model=model,
-        X_test=X_test,
-        y_test=y_test,
-        metrics_registry=METRICS_REGISTRY
-    )
-
-    print(metrics)
-
-
-
-
+    print("Logging run to MLflow...")
+    metrics_float = {k: float(v) for k, v in accuracy.items()}
+    log_model_run(model, params=params, metrics=metrics_float, run_name="logreg_v1")
+    
+    
+    
+    
 if __name__ == "__main__":
     main()
